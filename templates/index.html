@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>geonews</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.js?1.29.1"></script>
+    <style type="text/css">
+
+        html, body, #map {
+          width: 100%;
+          height: 100%;
+          margin: 0;
+          padding: 0;
+        }
+
+        .stations, .stations svg {
+          position: absolute;
+        }
+
+        .stations svg {
+          width: 60px;
+          height: 20px;
+          padding-right: 100px;
+          font: 10px sans-serif;
+        }
+
+        .stations circle {
+          fill: brown;
+          stroke: black;
+          stroke-width: 1.5px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="map"></div>
+    <script type="text/javascript">
+        var map = new google.maps.Map(d3.select("#map").node(), {
+            zoom: 3,
+            center: new google.maps.LatLng(37.76487, 20.41948),
+            mapTypeId: google.maps.MapTypeId.TERRAIN
+        });
+
+        var styles = [
+              {
+                featureType: "all",
+                elementType: "labels",
+                stylers: [
+                  { visibility: "off" }
+                ]
+              }
+        ];
+        map.setOptions({styles: styles});
+
+        d3.json('/entities', function(data) {
+            var overlay = new google.maps.OverlayView();
+
+
+            var radiusScale = d3.scale.linear()
+                    .domain(d3.extent(data, function(d) {return Math.sqrt(d.frequency);}))
+                    .range([1, 20]);
+
+            var fontScale = d3.scale.linear()
+                    .domain(d3.extent(data, function(d) {return d.frequency;}))
+                    .range([1, 20]);
+
+
+            overlay.onAdd = function() {
+                var layer = d3.select(this.getPanes().overlayLayer).append("div")
+                        .attr("class", "stations");
+
+                overlay.draw = function() {
+                    var projection = this.getProjection();
+                    var  padding = 10;
+
+                    function transform(d) {
+                        d = new google.maps.LatLng(d.geo.latitude, d.geo.longitude);
+                        d = projection.fromLatLngToDivPixel(d);
+                        return d3.select(this)
+                            .style("left", (d.x - padding) + "px")
+                            .style("top", (d.y - padding) + "px");
+                    }
+
+                    var marker = layer.selectAll("svg")
+                          .data(data)
+                          .each(transform) // update existing markers
+                          .enter().append("svg:svg")
+                          .each(transform)
+                          .attr("class", "marker");
+
+                    // Add a circle.
+                    marker.append("svg:circle")
+                      .attr("r", function(d) {
+                        return radiusScale(Math.sqrt(d.frequency));
+                      })
+                      .attr("cx", padding)
+                      .attr("cy", padding);
+
+                    // Add a label.
+                    marker.append("svg:text")
+                      .attr("x", padding + 7)
+                      .attr("y", padding)
+                      .attr("dy", ".31em")
+                      .style('font-size', function(d) {
+                        return fontScale(d.frequency) + 'px';
+                      })
+                      .text(function(d) { return d.name; });
+
+                     marker.on('mouseover', function(d) {
+                      console.log(d);
+                     })
+                    };
+
+            };
+            // Bind our overlay to the map…
+            overlay.setMap(map);
+        });
+    </script>
+</body>
+
+</html>
