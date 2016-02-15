@@ -1,13 +1,14 @@
 import pymongo
 import datetime
 import collections
+import time
 
 uri = 'mongodb://143.215.138.132:27017/'
 client = pymongo.MongoClient(uri)
 db = client['big_data']
 
 def _timestamp(dt):
-    return int(dt.strftime("%s"))
+    return int(time.mktime(dt.timetuple()))
 
 def _ids_from_articles(articles, accessor=lambda x: x['wdid']):
     return[accessor(entity) for article in articles for entity in article['entities']]

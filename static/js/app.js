@@ -1,0 +1,1 @@
+var geonews = angular.module('geonews', ['ui.router']);

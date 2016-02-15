@@ -8,6 +8,7 @@ app = flask.Flask(__name__, static_url_path='')
 @app.route('/')
 def index():
     return flask.render_template('index.html')
+
 @app.route('/entities')
 def get_entities():
     return json.dumps(database.get_latest_entities())
