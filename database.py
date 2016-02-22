@@ -7,8 +7,6 @@ uri = 'mongodb://143.215.138.132:27017/'
 client = pymongo.MongoClient(uri)
 db = client['big_data']
 
-def _timestamp(dt):
-    return int(time.mktime(dt.timetuple()))
 
 def _ids_from_articles(articles, accessor=lambda x: x['wdid']):
     return[accessor(entity) for article in articles for entity in article['entities']]
@@ -16,7 +14,7 @@ def _ids_from_articles(articles, accessor=lambda x: x['wdid']):
 def get_latest_entities():
     past_day = datetime.datetime.now() - datetime.timedelta(hours=24)
     # grab all the articles in the past 24 hours that have entities
-    article_query = {'timestamp': {'$gt': _timestamp(past_day)}, 'entities': {'$exists': True}}
+    article_query = {'timestamp': {'$gt': past_day}, 'entities': {'$exists': True}}
     articles = db.qdoc.find(article_query)
     entity_ids = _ids_from_articles(articles)
     counter = collections.Counter(entity_ids)
@@ -31,13 +29,26 @@ def get_latest_entities():
 
 def get_related_entities(_id):
     past_day = datetime.datetime.now() - datetime.timedelta(hours=24)
-    query = {'timestamp': {'$gt': _timestamp(past_day)},
+    query = {'timestamp': {'$gt': past_day},
             'entities': { '$elemMatch': {'wdid': _id}},
             }
     articles = db.qdoc.find(query)
     entity_ids = _ids_from_articles(articles)
     counter = collections.Counter(entity_ids)
-    transform = lambda x: {'_id': x,
+    transform = lambda x: {'id': x,
         'frequency': counter[x]}
     return map(transform, set(entity_ids))
 
+def list_articles(source):
+    # return articles that match the source
+    articles = db.qdoc.find({'source': source},
+        projection={'_id': 1, 'title': 1}, limit=10)
+    return flask.render_template('article_list.html',
+        source=source, articles=articles)
+
+def get_article(_id):
+    object_id = bson.objectid.ObjectId(_id)
+    article = db.qdoc.find_one({'_id': object_id})
+    # return the article that has the given id
+    article['_id'] = str(article['_id'])
+    return flask.render_template('article.html', article=article)
