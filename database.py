@@ -2,11 +2,19 @@ import pymongo
 import datetime
 import collections
 import time
+import pprint
 
 uri = 'mongodb://143.215.138.132:27017/'
 client = pymongo.MongoClient(uri)
 db = client['big_data']
 
+def get_entity_articles(entity_id):
+    past_day = datetime.datetime.now() - datetime.timedelta(hours=24)
+    projection = {'_id': 0, 'timestamp': 0, 'social': 0, 'content': 0,
+        'entities': 0}
+    results = db.qdoc.find({'timestamp': {'$gt': past_day},
+        'entities': { '$elemMatch': {'wdid': entity_id}}}, projection=projection)
+    return list(results)
 
 def _ids_from_articles(articles, accessor=lambda x: x['wdid']):
     return[accessor(entity) for article in articles for entity in article['entities']]
@@ -19,11 +27,15 @@ def get_latest_entities():
     entity_ids = _ids_from_articles(articles)
     counter = collections.Counter(entity_ids)
     # get the entities that have geolocation data
-    entity_query = {'_id': {'$in': entity_ids}, 'properties.GeoLocation': {'$exists': True}}
+    exclude = []
+    entity_query = {'_id': {'$in': entity_ids},
+         'title': {'$ne': 'United States of America'},
+         'geolocation.lat': {'$exists': True}}
     entities = db.entities.find(entity_query)
     transform = lambda x: {'name': x['title'],
         'id': x['_id'],
-        'geo': x['properties']['GeoLocation']['value'],
+        'lat': x['geolocation']['lat'],
+        'lng': x['geolocation']['lon'],
         'frequency': counter[x['_id']]}
     return map(transform, entities)
 

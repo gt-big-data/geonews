@@ -5,11 +5,19 @@
   padding: 0;
 }
 
+.pane {
+  height: 100%;
+  width: 30%;
+  display: inline-block
+}
+
 #map {
   width: 70%;
   height: 100%;
   margin: 0;
   padding: 0;
+  float: right;
+  display: inline-block;
 }
 
 .stations, .stations svg {
