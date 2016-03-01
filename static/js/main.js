@@ -77,6 +77,7 @@ function MapController($state, $http, $interpolate) {
                 });
 
                 circle.addListener('click', function(event) {
+                    $state.go('entity', {id: this.model.id, name: this.model.name});
                     lines.forEach(function(line) {
                         line.setMap(null);
                     });
@@ -107,6 +108,7 @@ function MapController($state, $http, $interpolate) {
                             };
 
                             line.addListener('click', function(event){ //looks for specific action of user (click)
+                                $state.go('twoentity', {id: circle.model.id, first: this.model.first.name, second: this.model.second.name});
                                 lineInfoWindow.setContent(lineTooltipFn(this.model));
                                 lineInfoWindow.setMap(map);
                                 lineInfoWindow.setPosition(new google.maps.LatLng(event.latLng.lat(), event.latLng.lng()));

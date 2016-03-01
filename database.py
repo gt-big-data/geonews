@@ -13,8 +13,9 @@ def get_entity_articles(entity_id):
     projection = {'_id': 0, 'timestamp': 0, 'social': 0, 'content': 0,
         'entities': 0}
     results = db.qdoc.find({'timestamp': {'$gt': past_day},
-        'entities': { '$elemMatch': {'wdid': entity_id}}}, projection=projection)
+        'entities': { '$elemMatch': {'wdid': entity_id}}}, projection=projection, limit=20)
     return list(results)
+
 
 def _ids_from_articles(articles, accessor=lambda x: x['wdid']):
     return[accessor(entity) for article in articles for entity in article['entities']]
