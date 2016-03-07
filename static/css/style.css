@@ -8,7 +8,8 @@
 .pane {
   height: 100%;
   width: 30%;
-  display: inline-block
+  display: inline-block;
+  overflow-y: scroll;
 }
 
 #map {

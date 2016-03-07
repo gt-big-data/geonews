@@ -18,14 +18,16 @@
 
     <!-- Map -->
     <div class="pane">
-        <nav class="navbar navbar-inverse">
+        <nav class="navbar navbar-inverse .navbar-fixed-top">
             <div class="container-fluid">
                 <div class="navbar-header">
                     <a class="navbar-brand" href="#">Geonews</a>
                 </div>
             </div>
         </nav>
-        <div ui-view></div>
+        <div class="sidebar"ui-view>
+
+        </div>
     </div>
     <div id="map" ng-controller="MapController"></div>
 </body>

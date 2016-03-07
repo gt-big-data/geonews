@@ -57,7 +57,7 @@ function MapController($state, $http, $interpolate) {
                     fillOpacity: 0.5,
                     center: new google.maps.LatLng(location.lat,
                         location.lng),
-                    radius: location.frequency * 1000,
+                    radius: location.frequency * 2000,
                     zIndex: 50
                 });
                 circle.model = {id: location.id, frequency: location.frequency,
@@ -108,7 +108,6 @@ function MapController($state, $http, $interpolate) {
                             };
 
                             line.addListener('click', function(event){ //looks for specific action of user (click)
-                                $state.go('twoentity', {id: circle.model.id, first: this.model.first.name, second: this.model.second.name});
                                 lineInfoWindow.setContent(lineTooltipFn(this.model));
                                 lineInfoWindow.setMap(map);
                                 lineInfoWindow.setPosition(new google.maps.LatLng(event.latLng.lat(), event.latLng.lng()));
