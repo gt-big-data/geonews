@@ -6,7 +6,14 @@ MapController.$inject = ['$state', '$http', '$interpolate'];
 function MapController($state, $http, $interpolate) {
     // We'll use these to display information about a location when a user
     // mouses over the location.
+    var lines = [];
     var locationInfoWindow = new google.maps.InfoWindow();
+    locationInfoWindow.addListener('closeclick', function(event) {
+        lines.forEach(function(line) {
+            line.setMap(null);
+        });
+        lines = [];
+    })
     var lineInfoWindow = new google.maps.InfoWindow();
 
     var circleTooltipFn = $interpolate(
@@ -15,7 +22,6 @@ function MapController($state, $http, $interpolate) {
     var lineTooltipFn = $interpolate(
             '<a>{{first.name}} and {{second.name}} <span class="badge">{{frequency}}</span></a>');
 
-    var lines = [];
 
 
     init();
@@ -57,7 +63,7 @@ function MapController($state, $http, $interpolate) {
                     fillOpacity: 0.5,
                     center: new google.maps.LatLng(location.lat,
                         location.lng),
-                    radius: location.frequency * 2000,
+                    radius: location.frequency * 1000,
                     zIndex: 50
                 });
                 circle.model = {id: location.id, frequency: location.frequency,
@@ -77,7 +83,7 @@ function MapController($state, $http, $interpolate) {
                 });
 
                 circle.addListener('click', function(event) {
-                    $state.go('entity', {id: this.model.id, name: this.model.name});
+                    $state.go('entity.articles', {id: this.model.id, name: this.model.name});
                     lines.forEach(function(line) {
                         line.setMap(null);
                     });

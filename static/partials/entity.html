@@ -1,6 +1,8 @@
 <div class="list-group">
     <h1 class="text-center">{{Entity.name}}</h1>
-    <a href="{{article.url}}" class="list-group-item" ng-repeat="article in Entity.data">
-        <h4 class="list-group-item-heading"> {{article.title}}</h4>
-    </a>
+    <ul class="nav nav-tabs">
+        <li ui-sref-active="active"><a ui-sref="entity.data({id: Entity.id, name: Entity.name})">Data</a></li>
+        <li ui-sref-active="active"><a ui-sref="entity.articles({id: Entity.id, name: Entity.name})">Articles</a></li>
+    </ul>
+    <div ui-view></div>
 </div>
