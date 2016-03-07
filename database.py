@@ -52,16 +52,15 @@ def get_related_entities(_id):
         'frequency': counter[x]}
     return map(transform, set(entity_ids))
 
-def list_articles(source):
-    # return articles that match the source
-    articles = db.qdoc.find({'source': source},
-        projection={'_id': 1, 'title': 1}, limit=10)
-    return flask.render_template('article_list.html',
-        source=source, articles=articles)
-
-def get_article(_id):
-    object_id = bson.objectid.ObjectId(_id)
-    article = db.qdoc.find_one({'_id': object_id})
-    # return the article that has the given id
-    article['_id'] = str(article['_id'])
-    return flask.render_template('article.html', article=article)
+def aggregate_keywords(_id):
+    past_day = datetime.datetime.now() - datetime.timedelta(hours=24)
+    match = { '$match': {
+                'timestamp': {'$gt': past_day},
+                'entities': { '$elemMatch': {'wdid': _id}}}
+        }
+    unwind = {'$unwind': '$keywords'}
+    group = {'$group': {'_id': '$keywords', 'count': {'$sum': 1}}}
+    sort = {'$sort': {'count': -1}}
+    limit = {'$limit': 10}
+    pipeline = [match, unwind, group, sort, limit]
+    return list(db.qdoc.aggregate(pipeline))

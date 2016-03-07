@@ -27,6 +27,9 @@ def get_related_entities(_id):
 def get_articles_for_entity(entity_id):
     return json.dumps(database.get_entity_articles(entity_id))
 
+@app.route('/keywords/<string:entity_id>')
+def get_keyword_count(entity_id):
+    return json.dumps(database.aggregate_keywords(entity_id))
 
 if __name__ == "__main__":
     app.debug = True
