@@ -11,7 +11,7 @@ function MapController($state, $http, $interpolate) {
     locationInfoWindow.addListener('closeclick', function(event) {
         lines.forEach(function(line) {
             line.setMap(null);
-        });
+        })
         lines = [];
     })
     var lineInfoWindow = new google.maps.InfoWindow();
@@ -83,10 +83,7 @@ function MapController($state, $http, $interpolate) {
                 });
 
                 circle.addListener('click', function(event) {
-                    $state.go('entity.articles', {id: this.model.id, name: this.model.name});
-                    lines.forEach(function(line) {
-                        line.setMap(null);
-                    });
+                    lines = [];
                     // Get related entities from the server
                     $http.get('/related/' + circle.model.id).then(function(response) {
                         var lookup = d3.map();
@@ -104,8 +101,8 @@ function MapController($state, $http, $interpolate) {
                                 path: path,
                                 geodesic: true,
                                 zIndex: 10,
-                                strokeWeight: 0.5,
-                                strokeWeight: lookup.get(d.model.frequency)
+                                strokeOpacity: 0.5,
+                                strokeWeight: lookup.get(d.model.frequency) * 2
                             });
                             line.model = {
                                 first: circle.model,
@@ -129,6 +126,7 @@ function MapController($state, $http, $interpolate) {
                             line.setMap(map);
                             return line;
                         });
+                        $state.go('entity.articles', {id: this.model.id, name: this.model.name});
                     // This == circle
                     }.bind(this));
                 });
