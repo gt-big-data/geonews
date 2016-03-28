@@ -84,7 +84,7 @@ function LoadingIndicator($http) {
 }
 
 EntityKeywordGraph.$inject = ['$http'];
-function EntityKeywordGraph() {
+function EntityKeywordGraph($http) {
     var directive = {
         scope: {
             id: '=',
@@ -92,10 +92,6 @@ function EntityKeywordGraph() {
         },
         restrict: 'AEC',
         templateUrl: 'partials/entity.keywordgraph.html'
-    }
-
-    directive.controller = function($scope) {
-      console.log($scope);
     }
 
     directive.link = function($scope, $element, $attrs) {
@@ -106,7 +102,7 @@ function EntityKeywordGraph() {
 
         function handler(response) {
             var margin = {top: 20, right: 20, bottom: 70, left: 40};
-            var width = 600 - margin.left - margin.right;
+            var width = $element.parent().width() - margin.left - margin.right;
             var height = 300 - margin.top - margin.bottom;
 
             var x = d3.scale.ordinal().rangeRoundBands([0, width]);
@@ -166,10 +162,6 @@ function EntityKeywordGraph() {
              })
               .attr("height", function(d) { return height - y(d.count); });
         }
-    };
-
-    directive.link = function($scope, $element, $attr) {
-
     };
 
     return directive;
