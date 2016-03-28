@@ -4,6 +4,7 @@
         <title>geonews</title>
         <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.5/cosmo/bootstrap.css">
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-XdYbMnZ/QjLh6iI4ogqCTaIjrFk87ip+ekIjefZch0Y+PvJ8CDYtEs1ipDmPorQ+" crossorigin="anonymous">
         <link rel="stylesheet" href="/css/style.css">
     </head>
     <body>
@@ -17,7 +18,7 @@
     </script>
 
     <!-- Map -->
-    <div class="pane">
+    <div class="pane" infinite-scroll>
         <nav class="navbar navbar-inverse .navbar-fixed-top">
             <div class="container-fluid">
                 <div class="navbar-header">
@@ -25,7 +26,8 @@
                 </div>
             </div>
         </nav>
-        <div class="sidebar"ui-view>
+
+        <div class="sidebar" ui-view>
 
         </div>
     </div>

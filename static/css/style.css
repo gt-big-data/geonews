@@ -12,6 +12,13 @@
   overflow-y: scroll;
 }
 
+.article-list {
+  height: 100%;
+  width: 100%;
+  display: inline-block;
+  overflow-y: scroll;
+}
+
 #map {
   width: 70%;
   height: 100%;
@@ -36,6 +43,10 @@
   fill: brown;
   stroke: black;
   stroke-width: 1.5px;
+}
+
+.margin-top-md {
+  margin-top: 20px;
 }
 
 .navbar {

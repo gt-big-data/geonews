@@ -5,6 +5,8 @@ geonews.controller('EntityArticleController', EntityArticleController);
 geonews.controller('EntityDataController', EntityDataController);
 
 geonews.directive('entityKeywordGraph', EntityKeywordGraph);
+geonews.directive('infiniteScroll', InfiniteScroll);
+geonews.directive('loadingIndicator', LoadingIndicator);
 
 geonews.config(function($httpProvider, $stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise("/home");
@@ -47,15 +49,37 @@ function EntityDataController($state, $http) {
 
 EntityArticleController.$inject = ['$state', '$http'];
 function EntityArticleController($state, $http) {
+    this.page = 1;
     this.name = $state.params.name;
-    this.loading = true;
 
-    $http.get('/articles/' +$state.params.id, {cache: true})
-        .then(responseHandler.bind(this));
+    $http.get('/articles/' +$state.params.id, {cache: true,
+      params: {page: this.page}}).then(responseHandler.bind(this));
 
     function responseHandler(response) {
-        this.loading = false;
         this.data = response.data;
+        this.page++;
+    }
+}
+
+
+function InfiniteScroll() {
+  console.log('scroller');
+  return function($scope, $element, $attr) {
+    $element.bind('scroll', function() {
+        console.log('scrolling');
+    });
+  }
+}
+
+LoadingIndicator.$inject = ['$http']
+function LoadingIndicator($http) {
+    return  {
+        restrict: 'AE',
+        templateUrl: 'partials/loading-indicator.html',
+
+        link: function($scope, $element, $attrs) {
+
+        }
     }
 }
 
@@ -70,7 +94,11 @@ function EntityKeywordGraph() {
         templateUrl: 'partials/entity.keywordgraph.html'
     }
 
-    directive.controller = function($scope, $http) {
+    directive.controller = function($scope) {
+      console.log($scope);
+    }
+
+    directive.link = function($scope, $element, $attrs) {
         console.log($scope);
 
         $http.get('/keywords/' + $scope.id).then(handler);
