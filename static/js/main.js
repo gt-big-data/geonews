@@ -47,12 +47,20 @@ function MapController($state, $http, $interpolate) {
 
         map.setOptions({styles: styles});
 
-        // fetch the data from the server
-        $http.get('/entities').then(responseHandler);
+        var sessionData = sessionStorage.getItem('entities');
+        if (sessionData) {
+            responseHandler(angular.fromJson(sessionData));
+        }
+        else {
+            // fetch the data from the server
+            $http.get('/entities', {cache: true}).then(responseHandler);
+        }
+
 
 
         function responseHandler(response) {
             var locations = response.data;
+            sessionStorage.setItem('entities', angular.toJson({data: locations}));
             // Convert the locations into google.maps.Circle objects.
             var circles = locations.map(function(location) {
                 var circle = new google.maps.Circle({
