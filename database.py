@@ -70,3 +70,15 @@ def aggregate_keywords(_id):
     limit = {'$limit': 10}
     pipeline = [match, unwind, group, sort, limit]
     return list(db.qdoc.aggregate(pipeline))
+
+def timeseries(entity_id):
+    past_day = datetime.datetime.now() - datetime.timedelta(hours=24)
+    match = { '$match': {
+                'timestamp': {'$gt': past_day},
+                'entities': {'$elemMatch': {'wdid': entity_id}}}
+        }
+    group = {'$group': {'_id': {
+        '$dateToString': { 'format': "%Y-%m-%dT%H:00", 'date': "$timestamp" } },
+        'count': {'$sum': 1}}
+        }
+    return list(db.qdoc.aggregate([match, group]))
