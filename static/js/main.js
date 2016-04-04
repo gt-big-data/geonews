@@ -2,8 +2,8 @@ var geonews = angular.module('geonews');
 
 geonews.controller('MapController', MapController);
 
-MapController.$inject = ['$state', '$http', '$interpolate'];
-function MapController($state, $http, $interpolate) {
+MapController.$inject = ['$state', '$http', '$interpolate', 'MapManager'];
+function MapController($state, $http, $interpolate, MapManager) {
     // We'll use these to display information about a location when a user
     // mouses over the location.
     var lines = [];
@@ -29,23 +29,7 @@ function MapController($state, $http, $interpolate) {
 
     function init() {
         // create a new google map and render it into the div with the id map
-        var map = new google.maps.Map(d3.select("#map").node(), {
-            zoom: 2,
-            center: new google.maps.LatLng(37.76487, 20.41948),
-            mapTypeId: google.maps.MapTypeId.TERRAIN
-        });
-
-        var styles = [
-              {
-                featureType: "all",
-                elementType: "labels",
-                stylers: [
-                  { visibility: "off" }
-                ]
-              }
-        ];
-
-        map.setOptions({styles: styles});
+        var map = MapManager.getMap();
 
         var sessionData = sessionStorage.getItem('entities');
         if (sessionData) {

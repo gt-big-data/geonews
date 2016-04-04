@@ -3,18 +3,22 @@ var geonews = angular.module('geonews', ['ui.router']);
 geonews.controller('EntityController', EntityController);
 geonews.controller('EntityArticleController', EntityArticleController);
 geonews.controller('EntityDataController', EntityDataController);
+geonews.controller('HeatMapController', HeatMapController);
 
 geonews.directive('entityKeywordGraph', EntityKeywordGraph);
 geonews.directive('infiniteScroll', InfiniteScroll);
 geonews.directive('loadingIndicator', LoadingIndicator);
 geonews.directive('timeSeriesGraph', TimeSeriesGraph);
 
+geonews.service('MapManager', MapManager);
+
 geonews.config(function($httpProvider, $stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise("/home");
      $stateProvider
         .state('home', {
             url: '/home',
-            templateUrl: 'partials/home.html'
+            templateUrl: 'partials/home.html',
+            controller: 'MapController',
         })
         .state('entity',{
             url: '/entity/:id/:name',
@@ -22,19 +26,93 @@ geonews.config(function($httpProvider, $stateProvider, $urlRouterProvider) {
             controller: 'EntityController',
             controllerAs: 'Entity'
         })
-        .state('entity.articles',{
-            url: '/articles',
-            templateUrl: 'partials/entity.articles.html',
-            controller: 'EntityArticleController',
-            controllerAs: 'EntityArticle'
-        })
-        .state('entity.data',{
-            url: '/data',
-            templateUrl: 'partials/entity.data.html',
-            controller: 'EntityDataController',
-            controllerAs: 'EntityData'
+          .state('entity.articles',{
+              url: '/articles',
+              templateUrl: 'partials/entity.articles.html',
+              controller: 'EntityArticleController',
+              controllerAs: 'EntityArticle'
+          })
+          .state('entity.data',{
+              url: '/data',
+              templateUrl: 'partials/entity.data.html',
+              controller: 'EntityDataController',
+              controllerAs: 'EntityData'
+          })
+        .state('heatmap', {
+          url: '/heatmap',
+          templateUrl: 'partials/heatmap.partial.html',
+          controller: 'HeatMapController',
+          controllerAs: 'HeatMap'
         })
 });
+
+
+
+HeatMapController.$inject = ['$state', '$http', '$interval', 'MapManager'];
+function HeatMapController($state, $http, $interval,  MapManager) {
+  var map = MapManager.getMap();
+  var heatmaps = []
+  var hour = 0;
+  var heatmap = null;
+  this.search = function() {
+    var options = {
+      cache: true,
+      params: {
+        hour: hour
+      }
+    }
+    // $interval(function() {
+      console.log(hour);
+      $http.get('/heatmap/'+ this.query, options).then(function(response) {
+        var data = response.data.map(function(i) {
+          return {location: new google.maps.LatLng(i.lat, i.lng),
+            weight: i.frequency * 5};
+        });
+        heatmap = new google.maps.visualization.HeatmapLayer({
+          data: data
+        });
+        heatmaps.forEach(function(h) {
+          h.setMap(null);
+        });
+        heatmap.setMap(map);
+        heatmaps.push(heatmap);
+      });
+      hour++;
+    // }, 3000, 5);
+
+  };
+}
+
+function MapManager() {
+
+  var service = {};
+  // create a new google map and render it into the div with the id map
+
+
+  var styles = [
+        {
+          featureType: "all",
+          elementType: "labels",
+          stylers: [
+            { visibility: "off" }
+          ]
+        }
+  ];
+
+
+
+  service.getMap = function() {
+    d3.select("#map").node().innerHTML = '';
+    var map = new google.maps.Map(d3.select("#map").node(), {
+      zoom: 2,
+      center: new google.maps.LatLng(37.76487, 20.41948),
+      mapTypeId: google.maps.MapTypeId.TERRAIN
+    });
+    map.setOptions({styles: styles});
+    return map;
+  }
+  return service;
+}
 
 EntityController.$inject = ['$state', '$http'];
 function EntityController($state, $http) {

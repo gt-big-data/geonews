@@ -22,10 +22,12 @@ def get_entity_articles(entity_id, page=1):
 def _ids_from_articles(articles, accessor=lambda x: x['wdid']):
     return[accessor(entity) for article in articles for entity in article['entities']]
 
-def get_latest_entities():
+def get_latest_entities(condition=None):
     past_day = datetime.datetime.now() - datetime.timedelta(hours=24)
     # grab all the articles in the past 24 hours that have entities
     match = {'$match': {'timestamp': {'$gt': past_day}, 'entities': {'$exists': True}}}
+    if condition:
+        match = condition
     project = {'$project': {'entities.wdid': 1, '_id': 0}}
     unwind = {'$unwind': '$entities'}
     group = {'$group': {'_id': '$entities.wdid', 'count': {'$sum': 1}}}

@@ -2,7 +2,7 @@ import flask
 import json
 import pymongo
 import random
-
+import datetime
 import database
 
 app = flask.Flask(__name__, static_url_path='')
@@ -35,6 +35,17 @@ def get_keyword_count(entity_id):
 @app.route('/timeseries/<string:entity_id>')
 def get_timeseries(entity_id):
     return json.dumps(database.timeseries(entity_id))
+
+@app.route('/heatmap/<string:keyword>')
+def get_heatmap(keyword):
+    hour = int(flask.request.args.get('hour'))
+    past_day = datetime.datetime.now() - datetime.timedelta(hours=24 - hour * 4)
+    end = past_day + datetime.timedelta(hours=4)
+    # grab all the articles in the past 24 hours that have entities
+    match = {'$match': {
+    'timestamp': {'$gt': past_day, '$lt': end},
+    'keywords': keyword}}
+    return json.dumps(database.get_latest_entities(match))
 
 if __name__ == "__main__":
     app.debug = True
