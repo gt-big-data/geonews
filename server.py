@@ -47,6 +47,26 @@ def get_heatmap(keyword):
     'keywords': keyword}}
     return json.dumps(database.get_latest_entities(match))
 
+
+@app.route('/heatmap/intervals/<string:keyword>')
+def get_heatmap_intervals(keyword=None):
+    num_intervals = int(flask.request.args.get('num_intervals'))
+    interval_hours = int(flask.request.args.get('interval_hours'))
+
+    if num_intervals != None and interval_hours != None:
+        # Handle many at once
+        past_day = datetime.datetime.now() - datetime.timedelta(hours=(interval_hours * num_intervals))
+        end = past_day + datetime.timedelta(hours=interval_hours)
+
+        # TODO: iterate through all possible beginning and end points
+        # TODO: create the query ranges to pass into an aggregate db query
+        return json.dumps({})
+
+    else:
+        # If the intervals or hours weren't even provided
+        return json.dumps({})
+
+
 if __name__ == "__main__":
     app.debug = True
     app.run()
