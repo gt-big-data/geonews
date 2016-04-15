@@ -23,7 +23,6 @@ function MapController($state, $http, $interpolate, MapManager) {
             '<a>{{first.name}} and {{second.name}} <span class="badge">{{frequency}}</span></a>');
 
 
-
     init();
 
 
